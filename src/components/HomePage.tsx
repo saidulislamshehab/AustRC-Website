@@ -1,3 +1,5 @@
+import { useEffect, useState } from 'react';
+import { motion } from 'motion/react';
 import { HeroSection } from './HeroSection';
 import { EventsSection } from './EventsSection';
 import { EducationalProgramsSection } from './EducationalProgramsSection';
@@ -5,15 +7,158 @@ import { ResearchProjectsHomepageSection } from './ResearchProjectsHomepageSecti
 import { TestimonialsSection } from './TestimonialsSection';
 import { CollaborationsSection } from './CollaborationsSection';
 
+// Animated background particles
+function AnimatedBackground() {
+  return (
+    <div className="fixed inset-0 -z-10 overflow-hidden">
+      {[...Array(15)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 bg-[#2ECC71] rounded-full opacity-10"
+          initial={{
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+          }}
+          animate={{
+            x: Math.random() * window.innerWidth,
+            y: Math.random() * window.innerHeight,
+            scale: [1, 1.5, 1],
+          }}
+          transition={{
+            duration: Math.random() * 20 + 20,
+            repeat: Infinity,
+            ease: 'linear',
+          }}
+        />
+      ))}
+    </div>
+  );
+}
+
+// Section divider with animation
+function AnimatedDivider() {
+  return (
+    <motion.div
+      initial={{ scaleX: 0, opacity: 0 }}
+      whileInView={{ scaleX: 1, opacity: 1 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.8, delay: 0.2 }}
+      className="h-px bg-gradient-to-r from-transparent via-[#2ECC71]/40 to-transparent my-20"
+    />
+  );
+}
+
+// Scroll progress indicator
+function ScrollProgress() {
+  const [scrollProgress, setScrollProgress] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const scrolled = window.scrollY;
+      setScrollProgress((scrolled / scrollHeight) * 100);
+    };
+
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  return (
+    <motion.div
+      className="fixed top-0 left-0 right-0 h-1 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] origin-left z-50"
+      style={{ scaleX: scrollProgress / 100 }}
+    />
+  );
+}
+
 export function HomePage() {
   return (
-    <main>
-      <HeroSection />
-      <EventsSection />
-      <EducationalProgramsSection />
-      <ResearchProjectsHomepageSection />
-      <TestimonialsSection />
-      <CollaborationsSection />
+    <main className="relative min-h-screen bg-black overflow-x-hidden">
+      <AnimatedBackground />
+      <ScrollProgress />
+      
+      {/* Hero Section with enhanced entrance animation */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.8 }}
+      >
+        <HeroSection />
+      </motion.div>
+
+      <AnimatedDivider />
+
+      {/* Events Section with stagger animation */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <EventsSection />
+      </motion.div>
+
+      <AnimatedDivider />
+
+      {/* Educational Programs with slide animation */}
+      <motion.div
+        initial={{ opacity: 0, x: -50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <EducationalProgramsSection />
+      </motion.div>
+
+      <AnimatedDivider />
+
+      {/* Research Projects with scale animation */}
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <ResearchProjectsHomepageSection />
+      </motion.div>
+
+      <AnimatedDivider />
+
+      {/* Testimonials with slide animation */}
+      <motion.div
+        initial={{ opacity: 0, x: 50 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <TestimonialsSection />
+      </motion.div>
+
+      <AnimatedDivider />
+
+      {/* Collaborations with fade animation */}
+      <motion.div
+        initial={{ opacity: 0, y: 50 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, amount: 0.2 }}
+        transition={{ duration: 0.8, ease: 'easeOut' }}
+      >
+        <CollaborationsSection />
+      </motion.div>
+
+      {/* Glow effect on scroll */}
+      <motion.div
+        className="fixed bottom-10 right-10 w-32 h-32 bg-[#2ECC71]/20 rounded-full blur-3xl pointer-events-none z-0"
+        animate={{
+          scale: [1, 1.2, 1],
+          opacity: [0.3, 0.6, 0.3],
+        }}
+        transition={{
+          duration: 4,
+          repeat: Infinity,
+          ease: 'easeInOut',
+        }}
+      />
     </main>
   );
 }

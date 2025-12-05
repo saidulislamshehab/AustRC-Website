@@ -91,7 +91,7 @@ export function EventsSection() {
             </p>
           </motion.div>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-max">
             {loading ? (
               <div className="col-span-full text-center py-12">
                 <p className="text-gray-400">Loading events...</p>
@@ -104,46 +104,120 @@ export function EventsSection() {
               events.map((event, index) => (
                 <motion.div
                   key={event.id}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="h-full"
+                  initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                  whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.6, delay: index * 0.15, ease: 'easeOut' }}
+                  className="h-full relative group"
+                  onClick={() => setSelectedEvent(event)}
+                  whileHover={{ boxShadow: '0 0 30px rgba(46, 204, 113, 0.6)' }}
                 >
-                  <Card 
-                    onClick={() => setSelectedEvent(event)}
-                    className="group cursor-pointer bg-gradient-to-br from-[rgba(46,204,113,0.05)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all duration-300 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] overflow-hidden backdrop-blur-sm h-full flex flex-col"
+                  {/* Neon glow effect on hover */}
+                  <div className="absolute -inset-0.5 bg-gradient-to-r from-[#2ECC71] via-[#2ECC71]/50 to-[#2ECC71] opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg blur-lg -z-10 pointer-events-none" />
+                  
+                  {/* Enhanced card background glow effect */}
+                  <div className="absolute -inset-1 bg-gradient-to-br from-[#2ECC71]/20 via-[#2ECC71]/5 to-[#2ECC71]/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg blur-xl -z-10 pointer-events-none" />
+                  
+                  {/* Card background glow effect - behind the card */}
+                  <div className="absolute inset-0 bg-gradient-to-br from-[#2ECC71]/0 via-[#2ECC71]/0 to-[#2ECC71]/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg blur-xl -z-10 pointer-events-none" />
+                  
+                  <div 
+                    className="cursor-pointer relative bg-gradient-to-br from-[rgba(46,204,113,0.08)] via-[rgba(20,20,20,0.5)] to-[rgba(10,10,10,0.8)] border border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.6)] transition-all duration-500 hover:shadow-[0_0_60px_0_rgba(46,204,113,0.4),inset_0_0_40px_0_rgba(46,204,113,0.05)] overflow-hidden backdrop-blur-md h-full flex flex-col rounded-lg before:absolute before:inset-0 before:rounded-lg before:p-[1px] before:bg-gradient-to-r before:from-[#2ECC71] before:via-[rgba(46,204,113,0.2)] before:to-[#2ECC71] before:opacity-30 hover:before:opacity-60 before:transition-opacity before:duration-500 before:pointer-events-none"
                   >
-                    <div className="relative overflow-hidden">
+                    {/* Image Section Enhanced */}
+                    <div className="relative overflow-hidden h-56 bg-gradient-to-b from-[#2ECC71]/10 to-transparent cursor-pointer">
                       <img
                         src={event.Cover_Picture}
                         alt={event.Event_Name}
-                        className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-110"
+                        className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-125 cursor-pointer"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
-                      <div className="absolute bottom-4 left-4 right-4">
-                        <div className="w-3 h-3 bg-[#2ECC71] rounded-full shadow-[0_0_20px_0_rgba(46,204,113,0.8)]" />
-                      </div>
+                      
+                      {/* Overlay gradient */}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black via-black/40 to-transparent opacity-70 hover:opacity-50 transition-opacity duration-300 cursor-pointer pointer-events-none" />
+                      
+                      {/* Shine effect on hover */}
+                      <motion.div
+                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/15 to-transparent pointer-events-none"
+                        initial={{ x: '-100%' }}
+                        whileHover={{ x: '100%' }}
+                        transition={{ duration: 0.7 }}
+                      />
+
+                      {/* Active indicator badge */}
+                      <motion.div 
+                        className="absolute top-4 right-4 z-10"
+                        whileHover={{ scale: 1.2 }}
+                      >
+                        <div className="flex items-center gap-2">
+                          <motion.div
+                            className="w-3 h-3 bg-[#2ECC71] rounded-full"
+                            animate={{ 
+                              boxShadow: [
+                                '0_0_10px_rgba(46,204,113,0.6)',
+                                '0_0_20px_rgba(46,204,113,0.9)',
+                                '0_0_10px_rgba(46,204,113,0.6)',
+                              ]
+                            }}
+                            transition={{ duration: 2, repeat: Infinity }}
+                          />
+                          <span className="text-xs font-semibold text-[#2ECC71] bg-black/50 px-2 py-1 rounded-full backdrop-blur-sm">Active</span>
+                        </div>
+                      </motion.div>
                     </div>
 
-                    <CardContent className="p-6 space-y-4 bg-black/40 backdrop-blur-sm flex-1 flex flex-col">
-                      <h3 className="tracking-tight group-hover:text-[#2ECC71] transition-colors text-white">
+                    {/* Content Section Enhanced */}
+                    <CardContent className="p-6 space-y-4 bg-gradient-to-b from-black/40 to-black/80 backdrop-blur-md flex-1 flex flex-col relative z-10">
+                      {/* Title with enhanced styling */}
+                      <motion.h3 
+                        className="tracking-tight text-white text-lg font-semibold line-clamp-2 hover:text-[#2ECC71] transition-colors duration-300 cursor-pointer"
+                        whileHover={{ x: 4 }}
+                      >
                         {event.Event_Name}
-                      </h3>
+                      </motion.h3>
 
-                      <p className="text-gray-400 text-sm flex-1" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      {/* Decorative line under title */}
+                      <motion.div
+                        className="h-0.5 w-0 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full"
+                        whileInView={{ width: '100%' }}
+                        viewport={{ once: true }}
+                        transition={{ duration: 0.6, delay: index * 0.15 + 0.3 }}
+                      />
+
+                      {/* Description text */}
+                      <p className="text-gray-300 text-sm flex-1 leading-relaxed" style={{ display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
                         {event.Introduction}
                       </p>
 
-                      <Button
-                        variant="ghost"
-                        className="w-full group-hover:bg-[#2ECC71] group-hover:text-white transition-all text-[#2ECC71] border border-[rgba(46,204,113,0.3)] hover:shadow-[0_0_20px_0_rgba(46,204,113,0.5)]"
+                      {/* Enhanced button */}
+                      <motion.button
+                        whileHover={{ scale: 1.02, y: -2 }}
+                        whileTap={{ scale: 0.98 }}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedEvent(event);
+                        }}
+                        className="w-full relative mt-2 py-3 px-4 bg-gradient-to-r from-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.05)] border border-[rgba(46,204,113,0.4)] hover:border-[rgba(46,204,113,0.7)] rounded-lg hover:bg-gradient-to-r hover:from-[rgba(46,204,113,0.2)] hover:to-[rgba(46,204,113,0.1)] transition-all duration-300 overflow-hidden cursor-pointer"
                       >
-                        Read More
-                        <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
-                      </Button>
+                        {/* Button shine effect */}
+                        <motion.div
+                          className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent pointer-events-none"
+                          initial={{ x: '-100%' }}
+                          whileHover={{ x: '100%' }}
+                          transition={{ duration: 0.5 }}
+                        />
+
+                        <span className="relative flex items-center justify-center gap-2 text-[#2ECC71] font-semibold text-sm">
+                          Read More
+                          <motion.span
+                            animate={{ x: [0, 4, 0] }}
+                            transition={{ duration: 1, repeat: Infinity }}
+                          >
+                            <ArrowRight className="w-4 h-4" />
+                          </motion.span>
+                        </span>
+                      </motion.button>
                     </CardContent>
-                  </Card>
+                  </div>
                 </motion.div>
               ))
             )}
