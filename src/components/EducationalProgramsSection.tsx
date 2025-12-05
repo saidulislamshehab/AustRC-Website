@@ -1,7 +1,6 @@
 import { motion } from 'motion/react';
 import { Card, CardContent } from './ui/card';
 import { ArrowRight } from 'lucide-react';
-import { Button } from './ui/button';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
