@@ -16,6 +16,7 @@ interface ResearchProject {
 export function ResearchProjectsHomepageSection() {
   const [projects, setProjects] = useState<ResearchProject[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchProjects = async () => {
@@ -53,6 +54,33 @@ export function ResearchProjectsHomepageSection() {
 
     fetchProjects();
   }, []);
+
+  useEffect(() => {
+    const cacheImages = async () => {
+      const cached: { [key: string]: string } = {};
+      for (const project of projects) {
+        if (project.Cover_Picture) {
+          try {
+            const response = await fetch(project.Cover_Picture);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = () => {
+              cached[project.id] = reader.result as string;
+              if (Object.keys(cached).length === projects.length) {
+                setCachedImages(cached);
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (error) {
+            cached[project.id] = project.Cover_Picture;
+          }
+        }
+      }
+    };
+    if (projects.length > 0) {
+      cacheImages();
+    }
+  }, [projects]);
 
   return (
     <section id="research-projects-home" className="py-20 bg-black relative overflow-hidden">
@@ -103,7 +131,7 @@ export function ResearchProjectsHomepageSection() {
                     {project.Cover_Picture ? (
                       <>
                         <img
-                          src={project.Cover_Picture}
+                          src={cachedImages[project.id] || project.Cover_Picture}
                           alt={project.Title}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />

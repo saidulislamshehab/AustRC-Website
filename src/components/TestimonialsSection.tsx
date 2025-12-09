@@ -3,6 +3,8 @@ import { Card, CardContent } from "./ui/card";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { Quote } from "lucide-react";
 import { useState, useEffect } from "react";
+import { doc, getDoc } from "firebase/firestore";
+import { db } from "@/config/firebase";
 
 const testimonials = [
   {
@@ -37,39 +39,81 @@ const testimonials = [
 
 export function TestimonialsSection() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [carousel1Index, setCarousel1Index] = useState(0);
-  const [carousel2Index, setCarousel2Index] = useState(0);
+  const [carouselImages, setCarouselImages] = useState<string[]>([]);
+  const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
+  const [carouselIndex, setCarouselIndex] = useState(0);
 
-  const carousel1Images = [
-    "https://images.unsplash.com/photo-1755053757912-a63da9d6e0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb2JvdGljcyUyMHN0dWRlbnRzJTIwd29ya3Nob3B8ZW58MXx8fHwxNzYzNDY5NTg4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1743677077216-00a458eff9e0?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb2JvdGljcyUyMGNsYXNzcm9vbSUyMGxlYXJuaW5nfGVufDF8fHx8MTc2MzQ2OTU4OXww&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1760493828288-d2dbb70d18c9?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHx0ZWNobm9sb2d5JTIwaW5ub3ZhdGlvbiUyMGxhYnxlbnwxfHx8fDE3NjMzNzM1MTF8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-  ];
-
-  const carousel2Images = [
-    "https://images.unsplash.com/photo-1760894942780-2b4b82a42ac3?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb2JvdGljcyUyMGF1dG9tYXRpb24lMjB3b3Jrc2hvcHxlbnwxfHx8fDE3NjM0NjgwNDN8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1745571479662-54a2ad1c747f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxoYW5kcyUyMG9uJTIwZWxlY3Ryb25pY3MlMjB0cmFpbmluZ3xlbnwxfHx8fDE3NjM0NjgwNDR8MA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-    "https://images.unsplash.com/photo-1755053757912-a63da9d6e0e2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxyb2JvdGljcyUyMHN0dWRlbnRzJTIwd29ya3Nob3B8ZW58MXx8fHwxNzYzNDY5NTg4fDA&ixlib=rb-4.1.0&q=80&w=1080&utm_source=figma&utm_medium=referral",
-  ];
-
+  // Fetch images from Firebase
   useEffect(() => {
-    const interval1 = setInterval(() => {
-      setCarousel1Index(
-        (prev) => (prev + 1) % carousel1Images.length,
-      );
+    const fetchVoiceImages = async () => {
+      try {
+        const docRef = doc(db, "All_Data", "Voice_of_AUSTRC");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          const imageUrls = [
+            data.Voice_1,
+            data.Voice_2,
+            data.Voice_3,
+            data.Voice_4,
+          ].filter(Boolean);
+
+          setCarouselImages(imageUrls);
+        }
+      } catch (error) {
+        console.error("Error fetching Voice of AUSTRC images:", error);
+      }
+    };
+
+    fetchVoiceImages();
+  }, []);
+
+  // Cache images
+  useEffect(() => {
+    const cacheImages = async () => {
+      const cached: { [key: string]: string } = {};
+
+      for (let i = 0; i < carouselImages.length; i++) {
+        const imageUrl = carouselImages[i];
+        if (imageUrl) {
+          try {
+            const response = await fetch(imageUrl);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = () => {
+              cached[`voice_${i}`] = reader.result as string;
+              if (Object.keys(cached).length === carouselImages.length) {
+                setCachedImages(cached);
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (error) {
+            cached[`voice_${i}`] = imageUrl; // fallback to original URL
+          }
+        }
+      }
+
+      if (carouselImages.length === 0) {
+        setCachedImages({});
+      }
+    };
+
+    if (carouselImages.length > 0) {
+      cacheImages();
+    }
+  }, [carouselImages]);
+
+  // Carousel interval
+  useEffect(() => {
+    if (carouselImages.length === 0) return;
+
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % carouselImages.length);
     }, 3000);
 
-    const interval2 = setInterval(() => {
-      setCarousel2Index(
-        (prev) => (prev + 1) % carousel2Images.length,
-      );
-    }, 3500);
-
-    return () => {
-      clearInterval(interval1);
-      clearInterval(interval2);
-    };
-  }, []);
+    return () => clearInterval(interval);
+  }, [carouselImages.length]);
 
   return (
     <section className="py-20 bg-gradient-to-b from-black via-gray-900 to-black relative overflow-hidden">
@@ -92,132 +136,65 @@ export function TestimonialsSection() {
           </h2>
         </motion.div>
 
-        {/* Carousels Side by Side */}
-        <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-          {/* Carousel 1 */}
+        {/* Carousel */}
+        <div className="flex justify-center max-w-3xl mx-auto">
+          {/* Single Carousel */}
           <motion.div
-            initial={{ opacity: 0, x: -50 }}
-            whileInView={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, scale: 0.95 }}
+            whileInView={{ opacity: 1, scale: 1 }}
             viewport={{ once: true }}
             transition={{ duration: 0.6 }}
             style={{ perspective: "1000px" }}
           >
-            <div className="relative aspect-square overflow-hidden rounded-2xl border border-[rgba(46,204,113,0.3)] shadow-[0_0_50px_0_rgba(46,204,113,0.4)]">
+            <div className="relative aspect-square overflow-hidden rounded-2xl border border-[rgba(46,204,113,0.3)] shadow-[0_0_50px_0_rgba(46,204,113,0.4)]" style={{ width: "500px", height: "500px" }}>
               <AnimatePresence mode="wait">
-                <motion.img
-                  key={carousel1Index}
-                  src={carousel1Images[carousel1Index]}
-                  alt={`Carousel 1 - Image ${carousel1Index + 1}`}
-                  className="w-full h-full object-cover"
-                  initial={{ 
-                    opacity: 0, 
-                    scale: 1.3, 
-                    rotateY: -15,
-                    filter: "blur(10px)"
-                  }}
-                  animate={{ 
-                    opacity: 1, 
-                    scale: 1,
-                    rotateY: 0,
-                    filter: "blur(0px)"
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    scale: 0.8,
-                    rotateY: 15,
-                    filter: "blur(10px)"
-                  }}
-                  transition={{ 
-                    duration: 1.2,
-                    ease: [0.25, 0.46, 0.45, 0.94]
-                  }}
-                />
-              </AnimatePresence>
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
-              <div className="absolute bottom-6 left-6 right-6">
-                <h3 className="text-white mb-2">
-                  Robotics Innovation
-                </h3>
-                <p className="text-gray-300 text-sm">
-                  Explore our cutting-edge robotics workshops
-                  and projects
-                </p>
-              </div>
-              {/* Dots Indicator */}
-              <div className="absolute bottom-6 right-6 flex gap-2">
-                {carousel1Images.map((_, index) => (
-                  <div
-                    key={index}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      index === carousel1Index
-                        ? "bg-[#2ECC71] w-6 shadow-[0_0_10px_0_rgba(46,204,113,0.8)]"
-                        : "bg-gray-500"
-                    }`}
+                {carouselImages.length > 0 && (
+                  <motion.img
+                    key={carouselIndex}
+                    src={cachedImages[`voice_${carouselIndex}`] || carouselImages[carouselIndex]}
+                    alt={`Voice of AUSTRC - Image ${carouselIndex + 1}`}
+                    className="w-full h-full object-cover"
+                    initial={{ 
+                      opacity: 0, 
+                      scale: 1.3, 
+                      rotateY: -15,
+                      filter: "blur(10px)"
+                    }}
+                    animate={{ 
+                      opacity: 1, 
+                      scale: 1,
+                      rotateY: 0,
+                      filter: "blur(0px)"
+                    }}
+                    exit={{ 
+                      opacity: 0, 
+                      scale: 0.8,
+                      rotateY: 15,
+                      filter: "blur(10px)"
+                    }}
+                    transition={{ 
+                      duration: 1.2,
+                      ease: [0.25, 0.46, 0.45, 0.94]
+                    }}
                   />
-                ))}
-              </div>
-            </div>
-          </motion.div>
-
-          {/* Carousel 2 */}
-          <motion.div
-            initial={{ opacity: 0, x: 50 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            style={{ perspective: "1000px" }}
-          >
-            <div className="relative aspect-square overflow-hidden rounded-2xl border border-[rgba(46,204,113,0.3)] shadow-[0_0_50px_0_rgba(46,204,113,0.4)]">
-              <AnimatePresence mode="wait">
-                <motion.img
-                  key={carousel2Index}
-                  src={carousel2Images[carousel2Index]}
-                  alt={`Carousel 2 - Image ${carousel2Index + 1}`}
-                  className="w-full h-full object-cover"
-                  initial={{ 
-                    opacity: 0, 
-                    x: 150,
-                    rotateZ: 5,
-                    scale: 1.2,
-                    filter: "blur(8px) brightness(0.5)"
-                  }}
-                  animate={{ 
-                    opacity: 1, 
-                    x: 0,
-                    rotateZ: 0,
-                    scale: 1,
-                    filter: "blur(0px) brightness(1)"
-                  }}
-                  exit={{ 
-                    opacity: 0, 
-                    x: -150,
-                    rotateZ: -5,
-                    scale: 0.9,
-                    filter: "blur(8px) brightness(0.5)"
-                  }}
-                  transition={{ 
-                    duration: 1,
-                    ease: [0.68, -0.55, 0.265, 1.55]
-                  }}
-                />
+                )}
               </AnimatePresence>
               <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent" />
               <div className="absolute bottom-6 left-6 right-6">
                 <h3 className="text-white mb-2">
-                  Hands-on Learning
+                  Community Voice
                 </h3>
                 <p className="text-gray-300 text-sm">
-                  Experience practical robotics education with
-                  expert guidance
+                  Stories and experiences from AUSTRC members
                 </p>
               </div>
               {/* Dots Indicator */}
               <div className="absolute bottom-6 right-6 flex gap-2">
-                {carousel2Images.map((_, index) => (
+                {carouselImages.map((_, index) => (
                   <div
                     key={index}
                     className={`w-2 h-2 rounded-full transition-all ${
-                      index === carousel2Index
+                      index === carouselIndex
                         ? "bg-[#2ECC71] w-6 shadow-[0_0_10px_0_rgba(46,204,113,0.8)]"
                         : "bg-gray-500"
                     }`}

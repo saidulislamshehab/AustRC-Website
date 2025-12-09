@@ -16,6 +16,7 @@ interface EducationalProgram {
 export function EducationalProgramsSection() {
   const [programs, setPrograms] = useState<EducationalProgram[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -53,6 +54,33 @@ export function EducationalProgramsSection() {
 
     fetchPrograms();
   }, []);
+
+  useEffect(() => {
+    const cacheImages = async () => {
+      const cached: { [key: string]: string } = {};
+      for (const program of programs) {
+        if (program.Image_1) {
+          try {
+            const response = await fetch(program.Image_1);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = () => {
+              cached[program.id] = reader.result as string;
+              if (Object.keys(cached).length === programs.length) {
+                setCachedImages(cached);
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (error) {
+            cached[program.id] = program.Image_1;
+          }
+        }
+      }
+    };
+    if (programs.length > 0) {
+      cacheImages();
+    }
+  }, [programs]);
 
   return (
     <section id="programs" className="py-20 bg-black relative overflow-hidden">
@@ -103,7 +131,7 @@ export function EducationalProgramsSection() {
                     {program.Image_1 ? (
                       <>
                         <img
-                          src={program.Image_1}
+                          src={cachedImages[program.id] || program.Image_1}
                           alt={program.Name}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                         />
