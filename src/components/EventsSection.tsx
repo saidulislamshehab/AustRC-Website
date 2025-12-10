@@ -19,6 +19,7 @@ export function EventsSection() {
   const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -64,6 +65,33 @@ export function EventsSection() {
       document.body.style.overflow = 'unset';
     };
   }, [selectedEvent]);
+
+  useEffect(() => {
+    const cacheImages = async () => {
+      const cached: { [key: string]: string } = {};
+      for (const event of events) {
+        if (event.Cover_Picture) {
+          try {
+            const response = await fetch(event.Cover_Picture);
+            const blob = await response.blob();
+            const reader = new FileReader();
+            reader.onload = () => {
+              cached[event.id] = reader.result as string;
+              if (Object.keys(cached).length === events.length) {
+                setCachedImages(cached);
+              }
+            };
+            reader.readAsDataURL(blob);
+          } catch (error) {
+            cached[event.id] = event.Cover_Picture;
+          }
+        }
+      }
+    };
+    if (events.length > 0) {
+      cacheImages();
+    }
+  }, [events]);
 
   return (
     <>
@@ -127,7 +155,7 @@ export function EventsSection() {
                     {/* Image Section Enhanced */}
                     <div className="relative overflow-hidden h-56 bg-gradient-to-b from-[#2ECC71]/10 to-transparent cursor-pointer">
                       <img
-                        src={event.Cover_Picture}
+                        src={cachedImages[event.id] || event.Cover_Picture}
                         alt={event.Event_Name}
                         className="w-full h-full object-cover transition-transform duration-700 ease-out hover:scale-125 cursor-pointer"
                       />
