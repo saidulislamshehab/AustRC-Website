@@ -1,6 +1,6 @@
 import { motion } from 'motion/react';
 import { Card, CardContent } from './ui/card';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, BookOpen, Users, Clock, Star, GraduationCap } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { collection, getDocs, query, orderBy } from 'firebase/firestore';
 import { db } from '@/config/firebase';
@@ -17,6 +17,7 @@ export function EducationalProgramsSection() {
   const [programs, setPrograms] = useState<EducationalProgram[]>([]);
   const [loading, setLoading] = useState(true);
   const [cachedImages, setCachedImages] = useState<{ [key: string]: string }>({});
+  const [hoveredCard, setHoveredCard] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchPrograms = async () => {
@@ -28,7 +29,6 @@ export function EducationalProgramsSection() {
         const fetchedPrograms: EducationalProgram[] = [];
         querySnapshot.forEach((doc) => {
           const data = doc.data();
-          console.log('Program data:', data); // Debug log
           fetchedPrograms.push({
             id: doc.id,
             Name: data.Name || '',
@@ -38,12 +38,10 @@ export function EducationalProgramsSection() {
           });
         });
 
-        // Sort by Order to ensure correct sequence and take only first 2
         const topPrograms = fetchedPrograms
           .sort((a, b) => a.Order - b.Order)
           .slice(0, 2);
 
-        console.log('Fetched programs:', topPrograms); // Debug log
         setPrograms(topPrograms);
       } catch (error) {
         console.error('Error fetching educational programs:', error);
@@ -82,92 +80,266 @@ export function EducationalProgramsSection() {
     }
   }, [programs]);
 
+  const stats = [
+    { icon: Users, value: '500+', label: 'Students Enrolled' },
+    { icon: BookOpen, value: '25+', label: 'Courses Available' },
+    { icon: Clock, value: '100+', label: 'Hours of Content' },
+    { icon: Star, value: '4.9', label: 'Average Rating' },
+  ];
+
   return (
-    <section id="programs" className="py-20 bg-black relative overflow-hidden">
+    <section id="programs" className="py-24 bg-black relative overflow-hidden">
       {/* Background gradient */}
       <div className="absolute inset-0">
         <div className="absolute inset-0 bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] blur-3xl" />
       </div>
 
+      {/* Animated background particles */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        {[...Array(6)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-2 h-2 bg-[#2ECC71]/20 rounded-full"
+            style={{
+              left: `${15 + i * 15}%`,
+              top: `${20 + (i % 3) * 25}%`,
+            }}
+            animate={{
+              y: [-20, 20, -20],
+              opacity: [0.2, 0.5, 0.2],
+              scale: [1, 1.5, 1],
+            }}
+            transition={{
+              duration: 4 + i,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: i * 0.5,
+            }}
+          />
+        ))}
+      </div>
+
       <div className="container mx-auto px-4 relative z-10">
+        {/* Header Section */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-20"
+        >
+          <motion.div
+            initial={{ scale: 0.9, opacity: 0 }}
+            whileInView={{ scale: 1, opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-[rgba(46,204,113,0.15)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] mb-6 backdrop-blur-sm"
+          >
+            <GraduationCap className="w-4 h-4 text-[#2ECC71]" />
+            <span className="text-[#2ECC71] text-sm font-medium tracking-wide">Learn & Grow</span>
+          </motion.div>
+
+          <motion.h2
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.2 }}
+            className="mb-6 tracking-tight text-white text-4xl md:text-5xl lg:text-6xl font-bold"
+          >
+            Educational{' '}
+            <span className="relative">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#2ECC71] to-[#27AE60]">
+                Programs
+              </span>
+              <motion.span
+                className="absolute -bottom-2 left-0 w-full h-1 bg-gradient-to-r from-[#2ECC71] to-transparent rounded-full"
+                initial={{ scaleX: 0 }}
+                whileInView={{ scaleX: 1 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.8, delay: 0.5 }}
+              />
+            </span>
+          </motion.h2>
+
+          <motion.p
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6, delay: 0.3 }}
+            className="text-gray-400 max-w-2xl mx-auto text-lg leading-relaxed"
+          >
+            Transform your career with our comprehensive programs. Simple steps to mastery,
+            no technical background required.
+          </motion.p>
+        </motion.div>
+
+        {/* Stats Bar */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-16 max-w-4xl mx-auto"
         >
-          <div className="inline-block px-4 py-2 bg-gradient-to-r from-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] mb-4">
-            <span className="text-[#2ECC71] text-sm">Learn & Grow</span>
-          </div>
-          <h2 className="mb-4 tracking-tight text-white text-5xl">Educational Programs</h2>
-          <p className="text-gray-400 max-w-2xl mx-auto">
-            Simple steps to mastery. No technical background required.
-          </p>
+          {stats.map((stat, index) => (
+            <motion.div
+              key={stat.label}
+              initial={{ opacity: 0, scale: 0.9 }}
+              whileInView={{ opacity: 1, scale: 1 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.4, delay: 0.1 * index }}
+              whileHover={{ scale: 1.05, y: -5 }}
+              className="relative p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm group cursor-default"
+            >
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.2)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative flex flex-col items-center text-center">
+                <stat.icon className="w-5 h-5 text-[#2ECC71] mb-2" />
+                <span className="text-2xl font-bold text-white">{stat.value}</span>
+                <span className="text-xs text-gray-400 mt-1">{stat.label}</span>
+              </div>
+            </motion.div>
+          ))}
         </motion.div>
 
+        {/* Programs Grid */}
         {loading ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400">Loading educational programs...</p>
+          <div className="flex items-center justify-center py-16">
+            <motion.div
+              className="flex flex-col items-center gap-4"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+            >
+              <motion.div
+                className="w-12 h-12 border-4 border-[rgba(46,204,113,0.3)] border-t-[#2ECC71] rounded-full"
+                animate={{ rotate: 360 }}
+                transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
+              />
+              <p className="text-gray-400 text-sm">Loading programs...</p>
+            </motion.div>
           </div>
         ) : programs.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400">No educational programs found</p>
-          </div>
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center py-16"
+          >
+            <BookOpen className="w-16 h-16 text-[rgba(46,204,113,0.3)] mx-auto mb-4" />
+            <p className="text-gray-400 text-lg">No educational programs found</p>
+          </motion.div>
         ) : (
-          <div className="grid md:grid-cols-2 lg:grid-cols-2 gap-8">
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
             {programs.map((program, index) => (
               <motion.div
                 key={program.id}
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 30 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
-                transition={{ duration: 0.6, delay: index * 0.2 }}
+                transition={{ duration: 0.7, delay: index * 0.15 }}
                 className="h-full"
+                onMouseEnter={() => setHoveredCard(program.id)}
+                onMouseLeave={() => setHoveredCard(null)}
               >
-                <Card className="group cursor-pointer bg-gradient-to-br from-[rgba(46,204,113,0.05)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all duration-300 hover:shadow-[0_0_40px_0_rgba(46,204,113,0.3)] overflow-hidden backdrop-blur-sm flex flex-col h-full relative">
-                  {/* Image Section with enhanced styling */}
-                  <div className="relative overflow-hidden h-64">
+                <Card className="group cursor-pointer bg-gradient-to-br from-[rgba(46,204,113,0.08)] via-[rgba(46,204,113,0.02)] to-transparent border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.6)] transition-all duration-500 hover:shadow-[0_0_60px_0_rgba(46,204,113,0.25)] overflow-hidden backdrop-blur-sm flex flex-col h-full relative">
+                  {/* Animated border glow */}
+                  <motion.div
+                    className="absolute inset-0 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-500"
+                    style={{
+                      background: 'linear-gradient(90deg, transparent, rgba(46,204,113,0.1), transparent)',
+                    }}
+                    animate={hoveredCard === program.id ? {
+                      x: ['-100%', '100%'],
+                    } : {}}
+                    transition={{ duration: 1.5, repeat: Infinity }}
+                  />
+
+                  {/* Image Section */}
+                  <div className="relative overflow-hidden h-72">
                     {program.Image_1 ? (
                       <>
-                        <img
+                        <motion.img
                           src={cachedImages[program.id] || program.Image_1}
                           alt={program.Name}
-                          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                          className="w-full h-full object-cover"
+                          whileHover={{ scale: 1.1 }}
+                          transition={{ duration: 0.6 }}
                         />
-                        <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-transparent opacity-60" />
+                        <div className="absolute inset-0 bg-gradient-to-t from-black via-black/50 to-transparent opacity-70" />
+                        <div className="absolute inset-0 bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
                       </>
                     ) : (
-                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2ECC71]/30 to-[#27AE60]/10">
-                        <span className="text-[#2ECC71] text-center px-4">{program.Name}</span>
+                      <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-[#2ECC71]/20 to-[#27AE60]/5">
+                        <GraduationCap className="w-20 h-20 text-[#2ECC71]/50" />
                       </div>
                     )}
 
-                    {/* Order badge */}
-                    <div className="absolute top-4 right-4 z-10">
-                      <div className="w-3 h-3 bg-[#2ECC71] rounded-full shadow-[0_0_20px_0_rgba(46,204,113,0.8)]" />
-                    </div>
+                    {/* Program number badge */}
+                    <motion.div
+                      className="absolute top-4 left-4 z-10"
+                      whileHover={{ scale: 1.1, rotate: 5 }}
+                    >
+                      <div className="px-3 py-1.5 bg-black/60 backdrop-blur-md rounded-full border border-[rgba(46,204,113,0.4)] flex items-center gap-2">
+                        <div className="w-2 h-2 bg-[#2ECC71] rounded-full animate-pulse shadow-[0_0_10px_0_rgba(46,204,113,0.8)]" />
+                        <span className="text-[#2ECC71] text-xs font-semibold">Program {program.Order}</span>
+                      </div>
+                    </motion.div>
+
+                    {/* Floating elements */}
+                    <motion.div
+                      className="absolute top-4 right-4 z-10"
+                      animate={{ y: [-3, 3, -3] }}
+                      transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
+                    >
+                      <div className="w-10 h-10 bg-[rgba(46,204,113,0.2)] backdrop-blur-md rounded-full flex items-center justify-center border border-[rgba(46,204,113,0.3)]">
+                        <BookOpen className="w-5 h-5 text-[#2ECC71]" />
+                      </div>
+                    </motion.div>
                   </div>
 
                   {/* Content Section */}
-                  <CardContent className="p-6 space-y-4 bg-black/40 backdrop-blur-sm flex-1 flex flex-col">
-                    <h3 className="tracking-tight group-hover:text-[#2ECC71] transition-colors text-white">
-                      {program.Name}
-                    </h3>
+                  <CardContent className="p-6 space-y-5 bg-gradient-to-b from-black/60 to-black/80 backdrop-blur-sm flex-1 flex flex-col relative">
+                    <div className="space-y-3">
+                      <motion.h3
+                        className="text-xl md:text-2xl font-bold tracking-tight text-white group-hover:text-[#2ECC71] transition-colors duration-300"
+                        layout
+                      >
+                        {program.Name}
+                      </motion.h3>
 
-                    <p className="text-gray-400 text-sm flex-1" style={{ display: '-webkit-box', WebkitLineClamp: 4, WebkitBoxOrient: 'vertical', overflow: 'hidden' }}>
+                      <div className="flex items-center gap-3 text-xs text-gray-500">
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          Self-paced
+                        </span>
+                        <span className="w-1 h-1 bg-gray-600 rounded-full" />
+                        <span className="flex items-center gap-1">
+                          <Users className="w-3 h-3" />
+                          All Levels
+                        </span>
+                      </div>
+                    </div>
+
+                    <p
+                      className="text-gray-400 text-sm leading-relaxed flex-1"
+                      style={{
+                        display: '-webkit-box',
+                        WebkitLineClamp: 3,
+                        WebkitBoxOrient: 'vertical',
+                        overflow: 'hidden'
+                      }}
+                    >
                       {program.Description}
                     </p>
 
                     <motion.button
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      className="w-full group-hover:bg-[#2ECC71] group-hover:text-white transition-all text-[#2ECC71] border border-[rgba(46,204,113,0.3)] hover:shadow-[0_0_20px_0_rgba(46,204,113,0.5)] px-4 py-2 rounded-lg font-medium text-sm inline-flex items-center justify-center gap-2"
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      className="w-full relative overflow-hidden bg-transparent group-hover:bg-[#2ECC71] border border-[rgba(46,204,113,0.4)] group-hover:border-[#2ECC71] text-[#2ECC71] group-hover:text-white transition-all duration-300 px-5 py-3 rounded-xl font-semibold text-sm inline-flex items-center justify-center gap-2 hover:shadow-[0_0_30px_0_rgba(46,204,113,0.4)] mt-4"
                     >
-                      <span>View Details</span>
+                      <span className="relative z-10">Explore Program</span>
                       <motion.span
-                        animate={{ x: [0, 4, 0] }}
-                        transition={{ duration: 1, repeat: Infinity }}
+                        className="relative z-10"
+                        animate={{ x: [0, 5, 0] }}
+                        transition={{ duration: 1.5, repeat: Infinity, ease: "easeInOut" }}
                       >
                         <ArrowRight className="w-4 h-4" />
                       </motion.span>
@@ -179,40 +351,67 @@ export function EducationalProgramsSection() {
           </div>
         )}
 
-        {/* Explore All Programs Button */}
+{/* Explore All Programs Button */}
+<motion.div
+  initial={{ opacity: 0, y: 30 }}
+  whileInView={{ opacity: 10, y: 0 }}
+  viewport={{ once: true }}
+  transition={{ duration: 0.7, delay: 0.5 }}
+  className="flex justify-center mt-6"
+>
+  <motion.button
+    whileHover={{ scale: 1.05, y: -3 }}
+    whileTap={{ scale: 0.97 }}
+    className="relative px-10 py-4 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full text-white font-bold text-base transition-all duration-300 shadow-[0_0_30px_0_rgba(46,204,113,0.3)] hover:shadow-[0_0_50px_0_rgba(46,204,113,0.5)] overflow-hidden group"
+  >
+    <motion.div
+      className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent skew-x-12"
+      initial={{ x: "-150%" }}
+      whileHover={{ x: "150%" }}
+      transition={{ duration: 0.8 }}
+    />
+
+    <span className="relative inline-flex items-center gap-3">
+      <GraduationCap className="w-5 h-5" />
+      Explore All Programs
+      <motion.span
+        animate={{ x: [0, 5, 0] }}
+        transition={{ duration: 1.2, repeat: Infinity, ease: "easeInOut" }}
+      >
+        <ArrowRight className="w-5 h-5" />
+      </motion.span>
+    </span>
+  </motion.button>
+</motion.div>
+
+
+        {/* Bottom decorative element */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.4 }}
+          transition={{ duration: 1, delay: 0.8 }}
           className="flex justify-center mt-12"
         >
-          <motion.button
-            whileHover={{ scale: 1.05, y: -2 }}
-            whileTap={{ scale: 0.95 }}
-            className="relative px-8 py-3 bg-gradient-to-r from-[rgba(46,204,113,0.15)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.4)] hover:border-[rgba(46,204,113,0.7)] text-[#2ECC71] font-semibold text-base transition-all duration-300 hover:shadow-[0_0_30px_0_rgba(46,204,113,0.4)] overflow-hidden group"
-          >
-            {/* Shine effect */}
-            <motion.div
-              className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"
-              initial={{ x: '-100%' }}
-              whileHover={{ x: '100%' }}
-              transition={{ duration: 0.6 }}
-            />
-
-            <span className="relative inline-flex items-center gap-2">
-              Explore All Programs
-              <motion.span
-                animate={{ x: [0, 4, 0] }}
-                transition={{ duration: 1, repeat: Infinity }}
-              >
-                <ArrowRight className="w-5 h-5" />
-              </motion.span>
-            </span>
-          </motion.button>
+          <div className="flex items-center gap-2">
+            {[...Array(5)].map((_, i) => (
+              <motion.div
+                key={i}
+                className="w-1.5 h-1.5 bg-[rgba(46,204,113,0.4)] rounded-full"
+                animate={{
+                  opacity: [0.3, 1, 0.3],
+                  scale: [1, 1.3, 1],
+                }}
+                transition={{
+                  duration: 2,
+                  repeat: Infinity,
+                  delay: i * 0.2,
+                }}
+              />
+            ))}
+          </div>
         </motion.div>
       </div>
     </section>
   );
 }
-

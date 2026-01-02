@@ -758,14 +758,11 @@ export function EventsSection() {
   useEffect(() => {
     if (selectedEvent) {
       document.body.style.overflow = 'hidden';
-      document.body.style.paddingRight = '15px'; // Prevent layout shift
     } else {
       document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
     }
     return () => {
       document.body.style.overflow = '';
-      document.body.style.paddingRight = '';
     };
   }, [selectedEvent]);
 

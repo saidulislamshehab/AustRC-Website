@@ -1,8 +1,49 @@
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { Button } from "./ui/button";
 import { ArrowRight, Sparkles, Cpu } from "lucide-react";
+import { useState, useEffect } from "react";
+
+// Continuous Rotating Words Component
+const RotatingWords = ({ 
+  words, 
+  className,
+  interval = 2500 
+}: { 
+  words: string[]; 
+  className?: string;
+  interval?: number;
+}) => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % words.length);
+    }, interval);
+    return () => clearInterval(timer);
+  }, [words.length, interval]);
+
+  return (
+    <AnimatePresence mode="wait">
+      <motion.span
+        key={currentIndex}
+        className={className}
+        initial={{ y: 20, opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        exit={{ y: -20, opacity: 0 }}
+        transition={{ 
+          duration: 0.4, 
+          ease: [0.32, 0.72, 0, 1]
+        }}
+      >
+        {words[currentIndex]}
+      </motion.span>
+    </AnimatePresence>
+  );
+};
 
 export function HeroSection() {
+  const rotatingWords = ["Safer Future", "Innovation", "Tomorrow", "Excellence"];
+
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-black">
       {/* Animated Gradient Background */}
@@ -65,78 +106,105 @@ export function HeroSection() {
         <div className="max-w-5xl mx-auto text-center space-y-8">
           {/* Badge */}
           <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
+            initial={{ opacity: 0, y: 20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            transition={{ delay: 0.2, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-[rgba(46,204,113,0.1)] to-[rgba(46,204,113,0.05)] rounded-full border border-[rgba(46,204,113,0.3)] shadow-[0_0_30px_0_rgba(46,204,113,0.3)]"
           >
-            <Cpu className="w-4 h-4 text-[#2ECC71]" />
+            <motion.div
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
+            >
+              <Cpu className="w-4 h-4 text-[#2ECC71]" />
+            </motion.div>
             <span className="text-[#2ECC71] text-sm text-[20px]">
               AUST Robotics Club
             </span>
-            <Sparkles className="w-4 h-4 text-[#2ECC71]" />
+            <motion.div
+              animate={{ scale: [1, 1.2, 1] }}
+              transition={{ duration: 2, repeat: Infinity }}
+            >
+              <Sparkles className="w-4 h-4 text-[#2ECC71]" />
+            </motion.div>
           </motion.div>
 
-          {/* Main Heading */}
+          {/* Main Heading with Rotating Words */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.3 }}
-            className="space-y-4"
+            transition={{ delay: 0.3, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="space-y-2"
           >
-            <h1 className="tracking-tight text-white text-6xl md:text-7xl lg:text-8xl">
+            <h1 className="tracking-tight text-white text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold">
               Robotics For
             </h1>
-            <h1
-              className="tracking-tight text-6xl md:text-7xl lg:text-8xl bg-clip-text text-transparent bg-gradient-to-r from-[#2ECC71] via-[#27AE60] to-[#2ECC71]"
-              style={{
-                WebkitTextFillColor: "transparent",
-                backgroundImage:
-                  "linear-gradient(90deg, #2ECC71 0%, #27AE60 50%, #2ECC71 100%)",
-              }}
-            >
-              Building Safer Future
+            
+            {/* Second Line with Rotating Words */}
+            <h1 className="tracking-tight text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold">
+              <span className="text-white">Building </span>
+              <RotatingWords 
+                words={rotatingWords}
+                interval={2500}
+                className="text-transparent bg-clip-text bg-gradient-to-r from-[#2ECC71] via-[#3DED97] to-[#27AE60]"
+              />
             </h1>
+            
+            {/* Animated Underline */}
+            <motion.div
+              className="w-32 sm:w-40 md:w-48 h-1 bg-gradient-to-r from-[#2ECC71] via-[#3DED97] to-[#27AE60] rounded-full mx-auto mt-4"
+              initial={{ scaleX: 0, opacity: 0 }}
+              animate={{ scaleX: 1, opacity: 1 }}
+              transition={{ delay: 0.8, duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            />
           </motion.div>
 
-          {/* Description */}
+          {/* Description with Staggered Reveal */}
           <motion.p
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.4 }}
+            transition={{ delay: 0.5, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="text-gray-400 text-lg md:text-xl max-w-3xl mx-auto leading-relaxed"
           >
             AUST Robotics Club (AUSTRC) at Ahsanullah University fosters a vibrant student community, 
-            driving innovation in robotics through projects 
-            like AI, autonomous robots, quadcopters, and the Mars Rover
+            driving innovation in robotics through projects{" "}
+            <span className="text-[#2ECC71]">
+              like AI, autonomous robots, quadcopters, and the Mars Rover
+            </span>
           </motion.p>
 
           {/* CTA Buttons */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.5 }}
+            transition={{ delay: 0.6, duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="flex flex-wrap gap-4 justify-center pt-4"
           >
             <motion.div
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
-              <Button className="bg-[#2ECC71] hover:bg-[#27AE60] text-white px-8 py-6 text-base shadow-[0_0_40px_0_rgba(46,204,113,0.8),0_0_80px_0_rgba(46,204,113,0.6),0_0_120px_0_rgba(46,204,113,0.4)] transition-all hover:shadow-[0_0_60px_0_rgba(46,204,113,1)] group">
-                <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300" />
-                Join the Club
-                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform" />
+              <Button className="relative bg-[#2ECC71] hover:bg-[#27AE60] text-white px-8 py-6 text-base shadow-[0_0_40px_0_rgba(46,204,113,0.8),0_0_80px_0_rgba(46,204,113,0.6),0_0_120px_0_rgba(46,204,113,0.4)] transition-all hover:shadow-[0_0_60px_0_rgba(46,204,113,1)] group overflow-hidden">
+                {/* Shimmer Effect */}
+                <motion.div
+                  className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12"
+                  initial={{ x: "-200%" }}
+                  animate={{ x: "200%" }}
+                  transition={{ duration: 2, repeat: Infinity, repeatDelay: 3 }}
+                />
+                <Sparkles className="w-5 h-5 mr-2 group-hover:rotate-12 transition-transform duration-300 relative z-10" />
+                <span className="relative z-10">Join the Club</span>
+                <ArrowRight className="w-5 h-5 ml-2 group-hover:translate-x-1 transition-transform relative z-10" />
               </Button>
             </motion.div>
             <motion.div
-              whileHover={{ scale: 1.05, y: -2 }}
+              whileHover={{ scale: 1.05, y: -4 }}
               whileTap={{ scale: 0.98 }}
-              transition={{ type: "spring", stiffness: 300, damping: 20 }}
+              transition={{ type: "spring", stiffness: 400, damping: 17 }}
             >
               <Button
                 variant="outline"
-                className="bg-white border-[rgba(46,204,113,0.5)] text-[#2ECC71] hover:bg-[#2ECC71]/10 px-8 py-6 text-base transition-all hover:shadow-[0_0_30px_0_rgba(46,204,113,0.5)] group"
+                className="relative bg-white border-[rgba(46,204,113,0.5)] text-[#2ECC71] hover:bg-[#2ECC71]/10 px-8 py-6 text-base transition-all hover:shadow-[0_0_30px_0_rgba(46,204,113,0.5)] group overflow-hidden"
               >
                 <Cpu className="w-5 h-5 mr-2 group-hover:rotate-180 transition-transform duration-500" />
                 View Projects
@@ -144,49 +212,41 @@ export function HeroSection() {
             </motion.div>
           </motion.div>
 
-          {/* Stats */}
+          {/* Stats with Animation */}
           <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.6 }}
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.8, duration: 0.6 }}
             className="grid grid-cols-3 gap-8 pt-12 max-w-2xl mx-auto"
           >
             {[
-              { value: "500+", label: "Active Members" },
+              { value: "1000+", label: "Active Members" },
               { value: "50+", label: "Projects" },
               { value: "100+", label: "Events" },
             ].map((stat, index) => (
-              <div
+              <motion.div
                 key={stat.label}
-                className="text-center p-4 rounded-lg bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)]"
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                transition={{ delay: 0.9 + index * 0.1, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                whileHover={{ 
+                  scale: 1.05, 
+                  y: -5,
+                  boxShadow: "0 0 30px 0 rgba(46,204,113,0.3)"
+                }}
+                className="text-center p-4 rounded-xl bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.2)] backdrop-blur-sm transition-all duration-300 cursor-default"
               >
-                <div className="text-3xl md:text-4xl text-[#2ECC71] mb-2">
+                <div className="text-3xl md:text-4xl text-[#2ECC71] mb-2 font-bold">
                   {stat.value}
                 </div>
                 <div className="text-sm text-gray-400">
                   {stat.label}
                 </div>
-              </div>
+              </motion.div>
             ))}
           </motion.div>
         </div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1, duration: 1 }}
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2"
-      >
-        <motion.div
-          animate={{ y: [0, 10, 0] }}
-          transition={{ repeat: Infinity, duration: 1.5 }}
-          className="w-6 h-10 border-2 border-[#2ECC71] rounded-full flex items-start justify-center p-2 shadow-[0_0_20px_0_rgba(46,204,113,0.6)]"
-        >
-          <div className="w-1 h-2 bg-[#2ECC71] rounded-full shadow-[0_0_10px_0_rgba(46,204,113,0.8)]" />
-        </motion.div>
-      </motion.div>
 
       {/* Grid Pattern Overlay */}
       <div
