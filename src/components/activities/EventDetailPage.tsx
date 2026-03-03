@@ -240,13 +240,22 @@ export function EventDetailPage() {
       <div className="relative z-10 container mx-auto px-4 pb-24 max-w-5xl">
         {/* Back Button */}
         <div className="w-full flex justify-start mb-8 relative z-50">
-          <button
+          <motion.button
             onClick={() => navigate('/activities/events')}
-            className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 border border-[#2ECC71]/30 rounded-full text-[#2ECC71] hover:bg-[#2ECC71] hover:text-black transition-all duration-300 cursor-pointer shadow-lg backdrop-blur-md"
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center gap-3 px-6 py-3 text-[#2ECC71] hover:border-[#2ECC71] hover:shadow-[0_0_25px_rgba(46,204,113,0.3)] transition-all duration-300 cursor-pointer backdrop-blur-xl"
           >
-            <ArrowLeft className="w-5 h-5" />
-            <span className="font-bold tracking-wide">Back</span>
-          </button>
+            <motion.div
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2ECC71]/10 group-hover:bg-[#2ECC71] transition-all duration-300"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#2ECC71] group-hover:text-black transition-colors duration-300" />
+            </motion.div>
+            <span className="font-semibold text-sm tracking-wide text-white/90 group-hover:text-white transition-colors duration-300">Back</span>
+          </motion.button>
         </div>
         {/* Cover Image */}
         {event.Cover_Picture && (

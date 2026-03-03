@@ -3,7 +3,6 @@ import { db } from "../config/firebase";
 import { collection, getDocs } from "firebase/firestore";
 import { motion } from "motion/react";
 import { ArrowLeft, User, Phone } from "lucide-react";
-import { Link } from "react-router-dom";
 
 interface Sponsor {
   id: string;
@@ -120,17 +119,28 @@ export function SponsorsPage() {
       <BubbleBackground />
 
       <main className="relative z-10 max-w-7xl mx-auto pt-24 pb-20 px-6">
-        {/* Navigation & Header Section (Identical to Collaborations) */}
-        <div className="relative mb-4">
-          {/* Back Button */}
-          <Link
-            to="/"
-            className="absolute left-0 top-2 text-[#2ECC71] hover:text-white transition-colors"
+        {/* Back Button */}
+        <div className="w-full flex justify-start mb-8 relative z-50">
+          <motion.button
+            onClick={() => window.history.back()}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            whileHover={{ scale: 1.05, x: -4 }}
+            whileTap={{ scale: 0.95 }}
+            className="group inline-flex items-center gap-3 px-6 py-3 text-[#2ECC71] hover:border-[#2ECC71] hover:shadow-[0_0_25px_rgba(46,204,113,0.3)] transition-all duration-300 cursor-pointer backdrop-blur-xl"
           >
-            <ArrowLeft size={24} />
-          </Link>
+            <motion.div
+              className="flex items-center justify-center w-8 h-8 rounded-full bg-[#2ECC71]/10 group-hover:bg-[#2ECC71] transition-all duration-300"
+            >
+              <ArrowLeft className="w-4 h-4 text-[#2ECC71] group-hover:text-black transition-colors duration-300" />
+            </motion.div>
+            <span className="font-semibold text-sm tracking-wide text-white/90 group-hover:text-white transition-colors duration-300">Back</span>
+          </motion.button>
+        </div>
 
-          {/* Centered Title */}
+        {/* Header */}
+        <div className="relative mb-4">
           <h1 className="text-4xl md:text-7xl font-bold tracking-tight text-center text-[#2ECC71]">
             Our Sponsors
           </h1>
