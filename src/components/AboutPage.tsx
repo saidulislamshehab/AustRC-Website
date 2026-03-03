@@ -36,46 +36,34 @@ import {
 import { Link } from 'react-router-dom';
 import logo from '@/assets/logo.png';
 
-// Floating Particles Component
-const FloatingParticles = () => {
-  const particles = Array.from({ length: 50 }, (_, i) => ({
-    id: i,
-    size: Math.random() * 4 + 1,
-    x: Math.random() * 100,
-    y: Math.random() * 100,
-    duration: Math.random() * 20 + 10,
-    delay: Math.random() * 5,
-  }));
+// Floating Particles Component (optimized: CSS animations, reduced count)
+const PARTICLES_DATA = Array.from({ length: 15 }, (_, i) => ({
+  id: i,
+  size: Math.random() * 4 + 1,
+  x: Math.random() * 100,
+  y: Math.random() * 100,
+  duration: Math.random() * 20 + 10,
+  delay: Math.random() * 5,
+}));
 
-  return (
-    <div className="absolute inset-0 overflow-hidden pointer-events-none">
-      {particles.map((particle) => (
-        <motion.div
-          key={particle.id}
-          className="absolute rounded-full bg-[#2ECC71]"
-          style={{
-            width: particle.size,
-            height: particle.size,
-            left: `${particle.x}%`,
-            top: `${particle.y}%`,
-          }}
-          animate={{
-            y: [0, -100, 0],
-            x: [0, Math.random() * 50 - 25, 0],
-            opacity: [0, 0.6, 0],
-            scale: [0, 1, 0],
-          }}
-          transition={{
-            duration: particle.duration,
-            delay: particle.delay,
-            repeat: Infinity,
-            ease: "easeInOut",
-          }}
-        />
-      ))}
-    </div>
-  );
-};
+const FloatingParticles = () => (
+  <div className="absolute inset-0 overflow-hidden pointer-events-none">
+    {PARTICLES_DATA.map((p) => (
+      <div
+        key={p.id}
+        className="absolute rounded-full bg-[#2ECC71]"
+        style={{
+          width: p.size,
+          height: p.size,
+          left: `${p.x}%`,
+          top: `${p.y}%`,
+          animation: `about-float ${p.duration}s ${p.delay}s ease-in-out infinite`,
+          willChange: 'transform, opacity',
+        }}
+      />
+    ))}
+  </div>
+);
 
 // Animated Grid Lines
 const GridLines = () => {
@@ -89,11 +77,9 @@ const GridLines = () => {
         </defs>
         <rect width="100%" height="100%" fill="url(#grid)" />
       </svg>
-      <motion.div
+      <div
         className="absolute inset-0 bg-gradient-to-b from-transparent via-[#2ECC71] to-transparent opacity-20"
-        style={{ height: '2px' }}
-        animate={{ y: ['-100%', '100vh'] }}
-        transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+        style={{ height: '2px', animation: 'about-scan 3s linear infinite', willChange: 'transform' }}
       />
     </div>
   );
@@ -160,12 +146,9 @@ const SectionDivider = ({ title, icon: Icon }: { title: string; icon: React.Elem
         transition={{ duration: 0.5, delay: 0.4, type: "spring" }}
         whileHover={{ scale: 1.05, borderColor: "rgba(46,204,113,0.6)" }}
       >
-        <motion.div
-          animate={{ rotate: [0, 360] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "linear" }}
-        >
+        <div style={{ animation: 'about-spin 8s linear infinite' }}>
           <Icon className="w-5 h-5 text-[#2ECC71]" />
-        </motion.div>
+        </div>
         <span className="text-white font-semibold text-lg">{title}</span>
       </motion.div>
       <motion.div
@@ -687,15 +670,13 @@ const DarkFooter = () => {
     <footer className="relative bg-black mt-20">
       {/* Animated background elements */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#2ECC71] rounded-full blur-[150px] opacity-10"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.08, 0.15, 0.08] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        <div
+          className="absolute bottom-0 left-1/4 w-[400px] h-[400px] bg-[#2ECC71] rounded-full blur-[150px]"
+          style={{ animation: 'about-orb1 8s ease-in-out infinite', willChange: 'transform, opacity' }}
         />
-        <motion.div
-          className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-[#27AE60] rounded-full blur-[120px] opacity-10"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.1, 0.08, 0.1] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        <div
+          className="absolute bottom-0 right-1/4 w-[300px] h-[300px] bg-[#27AE60] rounded-full blur-[120px]"
+          style={{ animation: 'about-orb2 10s ease-in-out infinite', willChange: 'transform, opacity' }}
         />
       </div>
 
@@ -955,30 +936,45 @@ export function AboutPage() {
 
   return (
     <div className="min-h-screen bg-black relative overflow-hidden pb-24">
+      {/* Performance-optimized CSS keyframes for infinite animations */}
+      <style>{`
+        @keyframes about-float{0%,100%{transform:translateY(0) scale(0);opacity:0}50%{transform:translateY(-100px) scale(1);opacity:.6}}
+        @keyframes about-scan{0%{transform:translateY(-100%)}100%{transform:translateY(100vh)}}
+        @keyframes about-spin{to{transform:rotate(360deg)}}
+        @keyframes about-orb1{0%,100%{transform:scale(1);opacity:.15}50%{transform:scale(1.2);opacity:.25}}
+        @keyframes about-orb2{0%,100%{transform:scale(1.2);opacity:.2}50%{transform:scale(1);opacity:.15}}
+        @keyframes about-orb-rot{0%{transform:translate(-50%,-50%) rotate(0)}to{transform:translate(-50%,-50%) rotate(360deg)}}
+        @keyframes about-bg-pulse{0%,100%{opacity:.3}50%{opacity:.5}}
+        @keyframes about-logo{0%,100%{transform:translateY(0);filter:drop-shadow(0 0 10px rgba(46,204,113,.3))}50%{transform:translateY(-10px);filter:drop-shadow(0 0 25px rgba(46,204,113,.6))}}
+        @keyframes about-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.2)}}
+        @keyframes about-ring{0%,100%{opacity:.2}50%{opacity:.5}}
+        @keyframes about-dot{0%,100%{transform:scale(1)}50%{transform:scale(1.3)}}
+        @keyframes about-shine{0%{transform:translateX(-100%)}to{transform:translateX(100%)}}
+        @keyframes about-hover-particle{0%{transform:translateY(200px);opacity:0}50%{opacity:1}100%{transform:translateY(-20px);opacity:0}}
+        @keyframes about-scan-down{0%{top:0}to{top:100%}}
+        @keyframes about-scan-up{0%{top:100%}to{top:0}}
+      `}</style>
+
       {/* Animated Background - Fixed position so it stays while scrolling */}
       <div className="fixed inset-0 z-0">
         <div className="absolute inset-0 bg-gradient-to-br from-black via-gray-900 to-black" />
-        <motion.div
+        <div
           className="absolute top-0 left-0 w-full h-full bg-gradient-to-r from-[rgba(46,204,113,0.1)] via-transparent to-[rgba(46,204,113,0.1)] blur-3xl"
-          animate={{ opacity: [0.3, 0.5, 0.3] }}
-          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          style={{ animation: 'about-bg-pulse 4s ease-in-out infinite', willChange: 'opacity' }}
         />
 
         {/* Large gradient orbs */}
-        <motion.div
-          className="absolute top-20 -left-40 w-[500px] h-[500px] bg-[#2ECC71] rounded-full blur-[150px] opacity-20"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.15, 0.25, 0.15] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        <div
+          className="absolute top-20 -left-40 w-[500px] h-[500px] bg-[#2ECC71] rounded-full blur-[150px]"
+          style={{ animation: 'about-orb1 8s ease-in-out infinite', willChange: 'transform, opacity' }}
         />
-        <motion.div
-          className="absolute bottom-20 -right-40 w-[600px] h-[600px] bg-[#27AE60] rounded-full blur-[150px] opacity-20"
-          animate={{ scale: [1.2, 1, 1.2], opacity: [0.2, 0.15, 0.2] }}
-          transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
+        <div
+          className="absolute bottom-20 -right-40 w-[600px] h-[600px] bg-[#27AE60] rounded-full blur-[150px]"
+          style={{ animation: 'about-orb2 10s ease-in-out infinite', willChange: 'transform, opacity' }}
         />
-        <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-[120px] opacity-10"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+        <div
+          className="absolute top-1/2 left-1/2 w-[400px] h-[400px] bg-gradient-to-r from-[#2ECC71] to-[#27AE60] rounded-full blur-[120px] opacity-10"
+          style={{ animation: 'about-orb-rot 20s linear infinite', willChange: 'transform' }}
         />
       </div>
 
@@ -1005,19 +1001,13 @@ export function AboutPage() {
                 transition={{ duration: 0.6, delay: 0.2, type: "spring" }}
                 whileHover={{ scale: 1.05, borderColor: "rgba(46,204,113,0.6)" }}
               >
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ duration: 4, repeat: Infinity, ease: "linear" }}
-                >
+                <div style={{ animation: 'about-spin 4s linear infinite' }}>
                   <Rocket className="w-4 h-4 text-[#2ECC71]" />
-                </motion.div>
+                </div>
                 <span className="text-[#2ECC71] text-sm font-medium"></span>
-                <motion.div
-                  animate={{ scale: [1, 1.2, 1] }}
-                  transition={{ duration: 2, repeat: Infinity }}
-                >
+                <div style={{ animation: 'about-pulse 2s ease-in-out infinite' }}>
                   <Sparkles className="w-4 h-4 text-[#2ECC71]" />
-                </motion.div>
+                </div>
               </motion.div>
 
               {/* Logo */}
@@ -1027,18 +1017,11 @@ export function AboutPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="flex justify-center mb-8"
               >
-                <motion.img
+                <img
                   src={logo}
                   alt="AUSTRC Logo"
                   className="w-40 h-40 object-contain"
-                  animate={{
-                    y: [0, -10, 0],
-                    filter: ["drop-shadow(0 0 10px rgba(46,204,113,0.3))", "drop-shadow(0 0 25px rgba(46,204,113,0.6))", "drop-shadow(0 0 10px rgba(46,204,113,0.3))"]
-                  }}
-                  transition={{
-                    y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
-                    filter: { duration: 2, repeat: Infinity, ease: "easeInOut" }
-                  }}
+                  style={{ animation: 'about-logo 4s ease-in-out infinite', willChange: 'transform, filter' }}
                 />
               </motion.div>
 
@@ -1148,10 +1131,9 @@ export function AboutPage() {
 
                 <div className="relative bg-[rgba(46,204,113,0.05)] backdrop-blur-xl border border-[rgba(46,204,113,0.3)] rounded-3xl p-10 h-full hover:border-[rgba(46,204,113,0.5)] transition-all duration-500 overflow-hidden">
                   {/* Animated scan line */}
-                  <motion.div
+                  <div
                     className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent opacity-50"
-                    animate={{ top: ["0%", "100%"] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    style={{ animation: 'about-scan-down 3s linear infinite' }}
                   />
 
                   <div className="flex items-center gap-4 mb-6">
@@ -1183,10 +1165,9 @@ export function AboutPage() {
 
                 <div className="relative bg-[rgba(46,204,113,0.05)] backdrop-blur-xl border border-[rgba(46,204,113,0.3)] rounded-3xl p-10 h-full hover:border-[rgba(46,204,113,0.5)] transition-all duration-500 overflow-hidden">
                   {/* Animated scan line */}
-                  <motion.div
+                  <div
                     className="absolute inset-x-0 h-px bg-gradient-to-r from-transparent via-[#2ECC71] to-transparent opacity-50"
-                    animate={{ top: ["100%", "0%"] }}
-                    transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+                    style={{ animation: 'about-scan-up 3s linear infinite' }}
                   />
 
                   <div className="flex items-center gap-4 mb-6">
@@ -1229,13 +1210,14 @@ export function AboutPage() {
                   <div className="relative bg-[rgba(46,204,113,0.05)] backdrop-blur-xl border border-[rgba(46,204,113,0.2)] rounded-2xl p-8 h-full hover:border-[rgba(46,204,113,0.5)] transition-all duration-500 hover:-translate-y-2">
                     {/* Floating particles on hover */}
                     <div className="absolute inset-0 overflow-hidden rounded-2xl opacity-0 group-hover:opacity-100 transition-opacity">
-                      {[...Array(3)].map((_, i) => (
-                        <motion.div
+                      {[0, 1, 2].map((i) => (
+                        <div
                           key={i}
                           className="absolute w-1 h-1 bg-[#2ECC71] rounded-full"
-                          initial={{ x: Math.random() * 200, y: 200 }}
-                          animate={{ y: -20, opacity: [0, 1, 0] }}
-                          transition={{ duration: 2, delay: i * 0.3, repeat: Infinity }}
+                          style={{
+                            left: `${25 + i * 25}%`,
+                            animation: `about-hover-particle 2s ${i * 0.3}s ease-in-out infinite`,
+                          }}
                         />
                       ))}
                     </div>
@@ -1339,10 +1321,9 @@ export function AboutPage() {
                         transition={{ delay: idx * 0.1 }}
                         className="flex items-center gap-3 bg-[rgba(46,204,113,0.1)] p-3 rounded-lg border border-[rgba(46,204,113,0.2)] hover:border-[rgba(46,204,113,0.5)] transition-all group/item"
                       >
-                        <motion.div
+                        <div
                           className="w-2 h-2 bg-[#2ECC71] rounded-full shadow-[0_0_10px_rgba(46,204,113,0.8)]"
-                          animate={{ scale: [1, 1.3, 1] }}
-                          transition={{ duration: 2, repeat: Infinity, delay: idx * 0.2 }}
+                          style={{ animation: `about-dot 2s ${idx * 0.2}s ease-in-out infinite` }}
                         />
                         <span className="text-gray-300 group-hover/item:text-[#2ECC71] transition-colors">{role}</span>
                       </motion.div>
@@ -1387,10 +1368,9 @@ export function AboutPage() {
 
                   <div className="relative bg-[rgba(46,204,113,0.05)] backdrop-blur-xl border border-[rgba(46,204,113,0.3)] rounded-2xl p-8 text-center hover:border-[rgba(46,204,113,0.5)] transition-all duration-500 hover:-translate-y-2">
                     {/* Animated ring */}
-                    <motion.div
+                    <div
                       className="absolute inset-0 rounded-2xl border-2 border-[rgba(46,204,113,0.2)]"
-                      animate={{ opacity: [0.2, 0.5, 0.2] }}
-                      transition={{ duration: 3, repeat: Infinity, delay: index * 0.5 }}
+                      style={{ animation: `about-ring 3s ${index * 0.5}s ease-in-out infinite` }}
                     />
 
                     <div className="text-4xl md:text-5xl font-bold mb-3 bg-gradient-to-r from-[#2ECC71] to-[#27AE60] bg-clip-text text-transparent">
@@ -1426,8 +1406,6 @@ export function AboutPage() {
                   <motion.div
                     className="bg-gradient-to-br from-[#2ECC71] to-[#27AE60] p-6 rounded-2xl mb-6 shadow-[0_0_40px_rgba(46,204,113,0.5)]"
                     whileHover={{ scale: 1.1, rotate: 5 }}
-                    animate={{ y: [0, -5, 0] }}
-                    transition={{ duration: 3, repeat: Infinity }}
                   >
                     <Mail className="w-12 h-12 text-white" />
                   </motion.div>
@@ -1523,18 +1501,14 @@ export function AboutPage() {
             className="relative inline-flex items-center gap-3 bg-[rgba(46,204,113,0.05)] border border-[rgba(46,204,113,0.2)] rounded-2xl px-8 py-5 overflow-hidden"
             whileHover={{ scale: 1.02, borderColor: "rgba(46,204,113,0.4)" }}
           >
-            <motion.div
+            <div
               className="absolute inset-0 bg-gradient-to-r from-transparent via-[rgba(46,204,113,0.1)] to-transparent"
-              animate={{ x: ["-100%", "100%"] }}
-              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+              style={{ animation: 'about-shine 3s linear infinite', willChange: 'transform' }}
             />
 
-            <motion.div
-              animate={{ rotate: 360 }}
-              transition={{ duration: 6, repeat: Infinity, ease: "linear" }}
-            >
+            <div style={{ animation: 'about-spin 6s linear infinite' }}>
               <Sparkles className="w-6 h-6 text-[#2ECC71]" />
-            </motion.div>
+            </div>
             {/* <p className="text-gray-400 relative z-10">
              
               <motion.span
