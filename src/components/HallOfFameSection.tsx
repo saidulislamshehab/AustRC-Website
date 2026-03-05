@@ -197,11 +197,11 @@ export function HallOfFameSection() {
           {allHallOfFameMembers.map((member, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              className="bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.3)] rounded-2xl p-6 backdrop-blur-sm shadow-[0_0_50px_0_rgba(46,204,113,0.3)] hover:shadow-[0_0_70px_0_rgba(46,204,113,0.5)] transition-all duration-300"
+              transition={{ duration: 0.3, delay: (index % 3) * 0.05 }}
+              className="bg-gradient-to-br from-[rgba(46,204,113,0.1)] to-transparent border border-[rgba(46,204,113,0.3)] rounded-2xl p-6 backdrop-blur-sm shadow-[0_0_50px_0_rgba(46,204,113,0.3)] hover:shadow-[0_0_70px_0_rgba(46,204,113,0.5)] transition-all duration-300 flex flex-col"
             >
               {/* Image */}
               <div className="relative w-32 h-32 mx-auto mb-6">
@@ -229,15 +229,15 @@ export function HallOfFameSection() {
               </div>
 
               {/* Quote */}
-              <div className="relative mb-6">
+              <div className="relative mb-6 flex-1">
                 <Quote className="absolute -top-2 -left-2 w-8 h-8 text-[#2ECC71] opacity-30" />
                 <p className="text-gray-300 text-sm leading-relaxed pl-6 pr-2 italic line-clamp-6">
                   {member.quote}
                 </p>
               </div>
 
-              {/* Social Links */}
-              <div className="flex justify-center gap-3 pt-4 border-t border-[rgba(46,204,113,0.2)]">
+              {/* Social Links - pushed to bottom */}
+              <div className="flex justify-center gap-3 pt-4 border-t border-[rgba(46,204,113,0.2)] mt-auto">
                 {member.facebook && (
                   <a
                     href={member.facebook}
